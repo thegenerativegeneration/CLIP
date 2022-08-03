@@ -125,9 +125,16 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
 
     with open(model_path, 'rb') as opened_file:
         try:
-            # loading JIT archive
-            model = torch.jit.load(opened_file, map_location=device if jit else "cpu").eval()
-            state_dict = None
+            if 'ukiyoe' in model_path:
+                if jit:
+                    model = torch.jit.load(opened_file, map_location=device if jit else "cpu").eval()
+                    state_dict = None
+                else:
+                    state_dict = torch.load(opened_file, map_location="cpu")
+            else:
+                # loading JIT archive
+                model = torch.jit.load(opened_file, map_location=device if jit else "cpu").eval()
+                state_dict = None
         except:
             # loading saved state dict
             if jit:
